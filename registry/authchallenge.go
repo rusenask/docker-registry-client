@@ -56,10 +56,15 @@ func init() {
 
 func parseAuthHeader(header http.Header) []*AuthorizationChallenge {
 	var challenges []*AuthorizationChallenge
-	for _, h := range header[http.CanonicalHeaderKey("WWW-Authenticate")] {
-		v, p := parseValueAndParams(h)
-		if v != "" {
-			challenges = append(challenges, &AuthorizationChallenge{Scheme: v, Parameters: p})
+	for hk, hv := range header {
+		if http.CanonicalHeaderKey(hk) != http.CanonicalHeaderKey("WWW-Authenticate") {
+			continue
+		}
+		for _, h := range hv {
+			v, p := parseValueAndParams(h)
+			if v != "" {
+				challenges = append(challenges, &AuthorizationChallenge{Scheme: v, Parameters: p})
+			}
 		}
 	}
 	return challenges
